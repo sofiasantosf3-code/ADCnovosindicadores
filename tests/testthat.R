@@ -1,4 +1,4 @@
 library(testthat)
-library(CFIndicadores)
+library(ADCnovosindicadores)
 
-test_check("CFIndicadores")
+test_check("ADCnovosindicadores")

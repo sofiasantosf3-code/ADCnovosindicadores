@@ -1,4 +1,4 @@
-#' @title Funcoes Utilitarias do CFIndicadores
+#' @title Funcoes Utilitarias do ADCnovosindicadores
 #' @name utils
 NULL
 

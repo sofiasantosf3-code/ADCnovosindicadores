@@ -1,0 +1,188 @@
+# ADCnovosindicadores
+
+Pacote R para **Analise das Demonstracoes Contabeis** de empresas listadas na B3. Importa dados no formato CVM/DFP/ITR, classifica contas automaticamente e calcula indicadores financeiros utilizados nas disciplinas de Analise das Demonstracoes Contabeis e Contabilidade Financeira.
+
+## Instalacao
+
+```r
+# Via remotes (GitHub)
+remotes::install_github("sofiasantosf3-code/ADCnovosindicadores")
+```
+
+## Funcionalidades
+
+### 1. Importacao de dados contabeis (CVM/DFP/ITR)
+
+Importa CSVs no formato padrao CVM e classifica automaticamente as contas do Balanco Patrimonial, DRE, DFC e DVA.
+
+```r
+library(ADCnovosindicadores)
+
+resultado <- importar_contabil_dfp("dados_empresa.csv")
+ag <- resultado$agregado   # lista: ATIVO_TOTAL, RECEITA_LIQUIDA, ...
+```
+
+**Categorias reconhecidas:**
+
+| Demonstracao | Contas                                                                                  |
+|:-------------|:----------------------------------------------------------------------------------------|
+| **BP**       | Ativo Total/Circulante/Nao Circulante, Caixa, Aplicacoes Financeiras, Estoques, Contas a Receber, Imobilizado, Intangivel, Passivo Circulante/Nao Circulante, Emprestimos CP/LP, Financiamentos CP/LP, Debentures CP/LP, Fornecedores, PL, Capital Social, Reservas de Lucros |
+| **DRE**      | Receita Total/Liquida, Custo Total/Servicos, Lucro Bruto/Operacional/Liquido, Despesas Operacionais/Vendas/Administrativas, Resultado Financeiro, Receitas/Despesas Financeiras, Resultado antes do IR |
+| **DFC**      | FCO, FCI, FCF                                                                          |
+| **DVA**      | Valor Adicionado a Distribuir, Pessoal, Impostos, Remuneracao de Terceiros/Proprio     |
+
+### 2. Analise vertical e horizontal (Aula 06)
+
+```r
+# Analise vertical — participacao de cada conta sobre uma base
+analise_vertical(ag, base = "ATIVO_TOTAL")
+
+# Analise horizontal — numeros-indice entre periodos
+analise_horizontal(
+  list("2022" = ag22, "2023" = ag23, "2024" = ag24),
+  contas = c("ATIVO_TOTAL", "RECEITA_LIQUIDA")
+)
+```
+
+### 3. Modelo Fleuriet — capital de giro (Aula 07)
+
+Reclassifica o balanco em circulante financeiro e operacional e calcula CDG (CCL), NCG (NIG), ST (SD), NTFP e termometro financeiro.
+
+```r
+# Reclassificacao do balanco
+r <- reclassificar_fleuriet(ag)
+# r$ACF, r$ACO, r$PCF, r$PCO, r$ANC, r$PNC_PL
+
+# Modelo completo com tipologia
+f <- fleuriet(ag)
+# f$CDG, f$NCG, f$ST, f$NTFP, f$TF
+# f$tipo ("I" a "VI"), f$situacao ("Excelente" a "Alto risco")
+```
+
+**Tipologia de Marques e Braga (1995):**
+
+| Tipo | CDG | NCG | ST | Situacao       |
+|:----:|:---:|:---:|:--:|:---------------|
+| I    |  +  |  -  |  + | Excelente      |
+| II   |  +  |  +  |  + | Solida         |
+| III  |  +  |  +  |  - | Insatisfatoria |
+| IV   |  -  |  +  |  - | Pessima        |
+| V    |  -  |  -  |  - | Muito ruim     |
+| VI   |  -  |  -  |  + | Alto risco     |
+
+```r
+# Efeito tesoura — detecta NCG crescendo acima do CDG
+efeito_tesoura(
+  cdg = c(100, 110, 115),
+  ncg = c(90, 120, 160),
+  anos = 2022:2024
+)
+```
+
+### 4. Prazos medios e ciclos (Aula 07)
+
+```r
+p <- prazos_medios(ag, ag_anterior)
+# p$PMRV  — Prazo Medio de Recebimento de Vendas
+# p$PMRE  — Prazo Medio de Renovacao de Estoques
+# p$PMPC  — Prazo Medio de Pagamento de Compras
+# p$ciclo_operacional   — PMRV + PMRE
+# p$ciclo_financeiro    — Ciclo operacional - PMPC
+```
+
+### 5. Alavancagem (Aula 06)
+
+```r
+a <- alavancagem(ag_atual, ag_anterior)
+# a$GAO — Grau de Alavancagem Operacional
+# a$GAF — Grau de Alavancagem Financeira
+# a$GAT — Grau de Alavancagem Total (= GAO x GAF)
+```
+
+### 6. Modelos de previsao de insolvencia (Aula 06)
+
+> **Nota:** Estes modelos foram estimados para industria e comercio. Em empresas de concessao (intangivel elevado, PL negativo), os escores devem ser interpretados com cautela.
+
+```r
+# Kanitz — termometro de insolvencia
+k <- kanitz(ag)
+# k$escore, k$faixa ("Solvente" / "Penumbra" / "Insolvente")
+classificar_kanitz(-2)  # "Penumbra"
+
+# Altman — versao brasileira (Z1)
+altman(ag)    # Z < 0 → insolvente
+
+# Elizabetsky
+elizabetsky(ag)  # Z < 0.5 → insolvente
+
+# Matias
+matias(ag)    # Z < 0 → insolvente
+```
+
+### 7. Indicadores do investidor (Marion, 2013)
+
+```r
+i <- indicadores_investidor(ag, n_acoes = 1000000, preco = 25.50, dividendos = 500000)
+# i$VPA       — Valor Patrimonial por Acao (PL / n acoes)
+# i$LPA       — Lucro por Acao (LL / n acoes)
+# i$PL_indice — Preco/Lucro (preco / LPA)
+# i$DPA       — Dividendo por Acao
+```
+
+## Utilitarios
+
+```r
+# Normalizar texto (remove acentos, lowercase)
+normalizar_texto("Ativo Não Circulante")  # "ativo nao circulante"
+
+# Converter numero em formato brasileiro
+conv_br_numeric("1.234,56")  # 1234.56
+
+# Divisao segura (sem erro em divisao por zero)
+safe_div(100, 0)  # NA
+safe_div(100, 0, default = 0)  # 0
+
+# Classificar descricoes de contas
+classificar_conta(c("Ativo Total", "Receita líquida"), categorias_bp)
+
+# Formatar valores monetarios
+formatar_valor(1500000)  # "1.5M"
+```
+
+## Estrutura do pacote
+
+```
+ADCnovosindicadores/
+├── R/
+│   ├── utils.R               # normalizar_texto, conv_br_numeric, safe_div
+│   ├── importar_contabil.R   # categorias CVM, importar_contabil_dfp/itr
+│   └── indicadores.R         # todos os indicadores financeiros
+├── tests/testthat/
+│   ├── test-utils.R          # 4 testes
+│   ├── test-importar-contabil.R  # 8 testes
+│   └── test-indicadores.R    # 11 testes
+├── DESCRIPTION
+├── NAMESPACE
+└── LICENSE
+```
+
+## Testes
+
+```r
+devtools::test()
+# 23 testes, todos passando
+```
+
+Os testes reproduzem os exemplos numericos das Aulas 06 e 07 do curso de Analise das Demonstracoes Contabeis (UFC).
+
+## Fontes
+
+- **Aulas 06 e 07** — Analise das Demonstracoes Contabeis, UFC
+- **Amorim, K.** — CCL/NIG/SD, Alavancagem, Indicadores combinados
+- **Marion, J. C. (2013)** — Analise das Demonstracoes Contabeis
+- **Marques, J. A. V. C.; Braga, R. (1995)** — Tipologia Fleuriet (tipos I–VI)
+- **Assaf Neto, A.; Tibúrcio, C. A. (2011)** — Analise Financeira
+
+## Licenca
+
+MIT
