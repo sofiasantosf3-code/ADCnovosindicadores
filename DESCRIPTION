@@ -1,0 +1,27 @@
+Package: CFIndicadores
+Title: Analise Contabil-Financeira de Empresas da B3
+Version: 0.1.0
+Authors@R:
+    person("Sofia", "Santos", email = "sofiasantosf3@example.com",
+           role = c("aut", "cre"))
+Description: Pacote R para analise de demonstracoes contabeis de empresas
+    listadas na B3. Importa dados CVM/DFP/ITR, classifica contas do balanco
+    patrimonial, DRE, DFC e DVA, e calcula indicadores financeiros: analise
+    vertical e horizontal, modelo Fleuriet (CDG, NCG, ST, tipologia I-VI,
+    efeito tesoura), prazos medios e ciclos, alavancagem (GAO, GAF, GAT),
+    modelos de insolvencia (Kanitz, Altman, Elizabetsky, Matias) e
+    indicadores do investidor (VPA, LPA, P/L, DPA).
+License: MIT + file LICENSE
+Encoding: UTF-8
+LazyData: true
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 7.3.2
+Depends: R (>= 4.1.0)
+Imports:
+    utils,
+    tools
+Suggests:
+    readxl,
+    testthat (>= 3.0.0),
+    knitr
+Config/testthat/edition: 3
