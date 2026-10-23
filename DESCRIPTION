@@ -14,7 +14,8 @@ Description: Pacote R para analise de demonstracoes contabeis de empresas
     juros, analise vertical e horizontal, modelo Fleuriet (CDG, NCG, ST,
     tipologia I-VI, efeito tesoura), prazos medios e ciclos, alavancagem
     (GAO, GAF, GAT), modelos de insolvencia (Kanitz, Altman, Elizabetsky,
-    Matias) e indicadores do investidor (VPA, LPA, P/L, DPA).
+    Matias), indicadores do investidor (VPA, LPA, P/L, DPA) e integracao
+    com cotacoes em tempo real da B3 via Yahoo Finance.
 License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true

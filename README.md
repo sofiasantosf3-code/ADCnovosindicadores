@@ -186,6 +186,28 @@ i <- indicadores_investidor(ag, n_acoes = 1000000, preco = 25.50, dividendos = 5
 # i$DPA       — Dividendo por Acao
 ```
 
+### 13. Cotacoes da B3 (Yahoo Finance)
+
+Busca cotacoes em tempo real de acoes da B3, sem dependencias externas.
+
+```r
+# Cotacao atual de uma acao
+cot <- cotacao_b3("PETR4")
+# cot$preco, cot$variacao_pct, cot$volume, cot$nome
+
+# Historico de cotacoes
+hist <- historico_b3("VALE3", periodo = "1y", intervalo = "1d")
+# data.frame: data, abertura, maxima, minima, fechamento, volume
+
+# Varias acoes de uma vez
+cotacoes_b3(c("PETR4", "VALE3", "ITUB4", "BBDC4"))
+
+# Indicadores do investidor com cotacao automatica
+i <- indicadores_investidor_b3(ag, ticker = "PETR4", n_acoes = 1000000)
+# Busca preco da B3 automaticamente e calcula VPA, LPA, P/L, DPA
+# Inclui: dividend_yield, cotacao, variacao_dia
+```
+
 ## Utilitarios
 
 ```r
@@ -213,11 +235,13 @@ ADCnovosindicadores/
 ├── R/
 │   ├── utils.R               # normalizar_texto, conv_br_numeric, safe_div
 │   ├── importar_contabil.R   # categorias CVM, importar_contabil_dfp/itr
-│   └── indicadores.R         # todos os indicadores financeiros (classicos + avancados)
+│   ├── indicadores.R         # todos os indicadores financeiros (classicos + avancados)
+│   └── cotacao_b3.R          # cotacoes da B3 via Yahoo Finance
 ├── tests/testthat/
 │   ├── test-utils.R          # 4 testes
 │   ├── test-importar-contabil.R  # 8 testes
-│   └── test-indicadores.R    # 31 testes
+│   ├── test-indicadores.R    # 31 testes
+│   └── test-cotacao-b3.R     # 8 testes
 ├── DESCRIPTION
 ├── NAMESPACE
 └── LICENSE
@@ -227,7 +251,7 @@ ADCnovosindicadores/
 
 ```r
 devtools::test()
-# 43 testes, todos passando
+# 51 testes, todos passando
 ```
 
 Os testes reproduzem os exemplos numericos das Aulas 06 e 07 do curso de Analise das Demonstracoes Contabeis (UFC).
