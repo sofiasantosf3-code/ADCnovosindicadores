@@ -1,9 +1,10 @@
 #' @title Indicadores Contabil-Financeiros
 #' @name indicadores
-#' @description Analise vertical/horizontal, modelo Fleuriet (CDG, NCG, ST,
-#'   tipologia I-VI, efeito tesoura), prazos medios e ciclos, alavancagem
-#'   (GAO, GAF, GAT), modelos de insolvencia (Kanitz, Altman, Elizabetsky,
-#'   Matias) e indicadores do investidor (VPA, LPA, P/L, DPA).
+#' @description Indicadores classicos (liquidez, endividamento, rentabilidade,
+#'   DuPont, cobertura de juros), analise vertical/horizontal, modelo Fleuriet
+#'   (CDG, NCG, ST, tipologia I-VI, efeito tesoura), prazos medios e ciclos,
+#'   alavancagem (GAO, GAF, GAT), modelos de insolvencia (Kanitz, Altman,
+#'   Elizabetsky, Matias) e indicadores do investidor (VPA, LPA, P/L, DPA).
 #'
 #'   Todas as funcoes operam sobre listas agregadas (nome -> valor) tal como
 #'   retornadas por importar_contabil_dfp()$agregado.
@@ -38,7 +39,272 @@ exigivel_total <- function(ag) soma_na(v_ag(ag, "PASSIVO_CIRCULANTE"),
                                        v_ag(ag, "PASSIVO_NAO_CIRCULANTE"))
 
 # =============================================================================
-# 1. Analise vertical e horizontal
+# 1. Indicadores de liquidez
+# =============================================================================
+
+#' Liquidez corrente
+#'
+#' LC = AC / PC. Mede a capacidade de pagar obrigacoes de curto prazo.
+#'
+#' @param ag Lista agregada do balanco.
+#' @return Valor numerico da liquidez corrente.
+#' @export
+liquidez_corrente <- function(ag) {
+  safe_div(v_ag(ag, "ATIVO_CIRCULANTE"), v_ag(ag, "PASSIVO_CIRCULANTE"))
+}
+
+#' Liquidez seca
+#'
+#' LS = (AC - Estoques) / PC. Exclui estoques, menos liquidos.
+#'
+#' @inheritParams liquidez_corrente
+#' @return Valor numerico.
+#' @export
+liquidez_seca <- function(ag) {
+  est <- v_ag(ag, "ESTOQUES"); if (is.na(est)) est <- 0
+  safe_div(v_ag(ag, "ATIVO_CIRCULANTE") - est, v_ag(ag, "PASSIVO_CIRCULANTE"))
+}
+
+#' Liquidez imediata
+#'
+#' LI = Disponivel / PC. Considera apenas caixa e equivalentes.
+#'
+#' @inheritParams liquidez_corrente
+#' @return Valor numerico.
+#' @export
+liquidez_imediata <- function(ag) {
+  safe_div(v_ag(ag, "CAIXA_EQUIVALENTES"), v_ag(ag, "PASSIVO_CIRCULANTE"))
+}
+
+#' Liquidez geral
+#'
+#' LG = (AC + RLP) / (PC + PNC). Compara realizaveis com exigiveis totais.
+#'
+#' @inheritParams liquidez_corrente
+#' @return Valor numerico.
+#' @export
+liquidez_geral <- function(ag) {
+  rlp <- v_ag(ag, "REALIZAVEL_LP"); if (is.na(rlp)) rlp <- 0
+  safe_div(v_ag(ag, "ATIVO_CIRCULANTE") + rlp, exigivel_total(ag))
+}
+
+#' Todos os indicadores de liquidez
+#'
+#' @inheritParams liquidez_corrente
+#' @return Lista com LC, LS, LI, LG.
+#' @export
+indicadores_liquidez <- function(ag) {
+  list(
+    LC = liquidez_corrente(ag),
+    LS = liquidez_seca(ag),
+    LI = liquidez_imediata(ag),
+    LG = liquidez_geral(ag)
+  )
+}
+
+# =============================================================================
+# 2. Estrutura de capital / endividamento
+# =============================================================================
+
+#' Endividamento geral
+#'
+#' EG = Exigivel total / Ativo total. Proporcao do ativo financiada por terceiros.
+#'
+#' @param ag Lista agregada do balanco.
+#' @return Valor numerico.
+#' @export
+endividamento_geral <- function(ag) {
+  safe_div(exigivel_total(ag), v_ag(ag, "ATIVO_TOTAL"))
+}
+
+#' Composicao do endividamento
+#'
+#' CE = PC / Exigivel total. Proporcao das dividas que vencem no curto prazo.
+#'
+#' @inheritParams endividamento_geral
+#' @return Valor numerico.
+#' @export
+composicao_endividamento <- function(ag) {
+  safe_div(v_ag(ag, "PASSIVO_CIRCULANTE"), exigivel_total(ag))
+}
+
+#' Imobilizacao do patrimonio liquido
+#'
+#' IPL = (Imobilizado + Intangivel) / PL.
+#'
+#' @inheritParams endividamento_geral
+#' @return Valor numerico.
+#' @export
+imobilizacao_pl <- function(ag) {
+  imob <- v_ag(ag, "IMOBILIZADO"); if (is.na(imob)) imob <- 0
+  intang <- v_ag(ag, "INTANGIVEL"); if (is.na(intang)) intang <- 0
+  safe_div(imob + intang, v_ag(ag, "PATRIMONIO_LIQUIDO"))
+}
+
+#' Imobilizacao de recursos nao correntes
+#'
+#' IRNC = (Imobilizado + Intangivel) / (PL + PNC).
+#'
+#' @inheritParams endividamento_geral
+#' @return Valor numerico.
+#' @export
+imobilizacao_rnc <- function(ag) {
+  imob <- v_ag(ag, "IMOBILIZADO"); if (is.na(imob)) imob <- 0
+  intang <- v_ag(ag, "INTANGIVEL"); if (is.na(intang)) intang <- 0
+  safe_div(imob + intang,
+           soma_na(v_ag(ag, "PATRIMONIO_LIQUIDO"), v_ag(ag, "PASSIVO_NAO_CIRCULANTE")))
+}
+
+#' Participacao de capital de terceiros
+#'
+#' PCT = Exigivel total / PL. Quanto de capital de terceiros para cada real proprio.
+#'
+#' @inheritParams endividamento_geral
+#' @return Valor numerico.
+#' @export
+participacao_capital_terceiros <- function(ag) {
+  safe_div(exigivel_total(ag), v_ag(ag, "PATRIMONIO_LIQUIDO"))
+}
+
+#' Todos os indicadores de endividamento
+#'
+#' @inheritParams endividamento_geral
+#' @return Lista com EG, CE, IPL, IRNC, PCT.
+#' @export
+indicadores_endividamento <- function(ag) {
+  list(
+    EG   = endividamento_geral(ag),
+    CE   = composicao_endividamento(ag),
+    IPL  = imobilizacao_pl(ag),
+    IRNC = imobilizacao_rnc(ag),
+    PCT  = participacao_capital_terceiros(ag)
+  )
+}
+
+# =============================================================================
+# 3. Rentabilidade
+# =============================================================================
+
+#' Margem bruta
+#'
+#' MB = Lucro bruto / Receita liquida.
+#'
+#' @param ag Lista agregada (DRE).
+#' @return Valor numerico.
+#' @export
+margem_bruta <- function(ag) {
+  safe_div(v_ag(ag, "LUCRO_BRUTO"), vendas_ag(ag))
+}
+
+#' Margem operacional
+#'
+#' MO = LAJIR / Receita liquida.
+#'
+#' @inheritParams margem_bruta
+#' @return Valor numerico.
+#' @export
+margem_operacional <- function(ag) {
+  safe_div(lajir_ag(ag), vendas_ag(ag))
+}
+
+#' Margem liquida
+#'
+#' ML = Lucro liquido / Receita liquida.
+#'
+#' @inheritParams margem_bruta
+#' @return Valor numerico.
+#' @export
+margem_liquida <- function(ag) {
+  safe_div(v_ag(ag, "LUCRO_LIQUIDO"), vendas_ag(ag))
+}
+
+#' Retorno sobre o ativo (ROA)
+#'
+#' ROA = Lucro liquido / Ativo total.
+#'
+#' @param ag Lista agregada (balanco + DRE).
+#' @return Valor numerico.
+#' @export
+roa <- function(ag) {
+  safe_div(v_ag(ag, "LUCRO_LIQUIDO"), v_ag(ag, "ATIVO_TOTAL"))
+}
+
+#' Retorno sobre o patrimonio liquido (ROE)
+#'
+#' ROE = Lucro liquido / PL.
+#'
+#' @inheritParams roa
+#' @return Valor numerico.
+#' @export
+roe <- function(ag) {
+  safe_div(v_ag(ag, "LUCRO_LIQUIDO"), v_ag(ag, "PATRIMONIO_LIQUIDO"))
+}
+
+#' Giro do ativo
+#'
+#' GA = Receita liquida / Ativo total.
+#'
+#' @inheritParams roa
+#' @return Valor numerico.
+#' @export
+giro_ativo <- function(ag) {
+  safe_div(vendas_ag(ag), v_ag(ag, "ATIVO_TOTAL"))
+}
+
+#' Todos os indicadores de rentabilidade
+#'
+#' @inheritParams roa
+#' @return Lista com MB, MO, ML, ROA, ROE, GA.
+#' @export
+indicadores_rentabilidade <- function(ag) {
+  list(
+    MB  = margem_bruta(ag),
+    MO  = margem_operacional(ag),
+    ML  = margem_liquida(ag),
+    ROA = roa(ag),
+    ROE = roe(ag),
+    GA  = giro_ativo(ag)
+  )
+}
+
+# =============================================================================
+# 4. Decomposicao DuPont
+# =============================================================================
+
+#' Decomposicao DuPont
+#'
+#' ROE = Margem liquida x Giro do ativo x Multiplicador de alavancagem.
+#' Multiplicador = AT / PL.
+#'
+#' @param ag Lista agregada (balanco + DRE).
+#' @return Lista com ML, GA, multiplicador, ROE_dupont.
+#' @export
+dupont <- function(ag) {
+  ml  <- margem_liquida(ag)
+  ga  <- giro_ativo(ag)
+  mult <- safe_div(v_ag(ag, "ATIVO_TOTAL"), v_ag(ag, "PATRIMONIO_LIQUIDO"))
+  list(ML = ml, GA = ga, multiplicador = mult,
+       ROE_dupont = ml * ga * mult)
+}
+
+# =============================================================================
+# 5. Cobertura de juros
+# =============================================================================
+
+#' Indice de cobertura de juros
+#'
+#' ICJ = LAJIR / Despesas financeiras. Quantas vezes o resultado operacional
+#' cobre os encargos financeiros.
+#'
+#' @param ag Lista agregada (DRE).
+#' @return Valor numerico.
+#' @export
+cobertura_juros <- function(ag) {
+  safe_div(lajir_ag(ag), abs(v_ag(ag, "DESPESAS_FINANCEIRAS")))
+}
+
+# =============================================================================
+# 6. Analise vertical e horizontal
 # =============================================================================
 
 #' Analise vertical
@@ -97,7 +363,7 @@ analise_horizontal <- function(lista_ag, contas = NULL, ano_base = NULL) {
 }
 
 # =============================================================================
-# 2. Capital de giro - modelo Fleuriet (CCL, NIG, SD)
+# 7. Capital de giro - modelo Fleuriet (CCL, NIG, SD)
 # =============================================================================
 
 #' Reclassificar o balanco no modelo Fleuriet
@@ -180,7 +446,7 @@ efeito_tesoura <- function(cdg, ncg, anos = seq_along(cdg)) {
 }
 
 # =============================================================================
-# 3. Prazos medios e ciclos
+# 8. Prazos medios e ciclos
 # =============================================================================
 
 #' Prazos medios, ciclo operacional e ciclo financeiro
@@ -215,7 +481,7 @@ prazos_medios <- function(ag, ag_ant = NULL, dias = 360) {
 }
 
 # =============================================================================
-# 4. Alavancagem operacional, financeira e total
+# 9. Alavancagem operacional, financeira e total
 # =============================================================================
 
 #' Graus de alavancagem
@@ -236,9 +502,9 @@ alavancagem <- function(ag, ag_ant) {
 }
 
 # =============================================================================
-# 5. Modelos de previsao de insolvencia
-#    Atencao: modelos estimados para industria e comercio. Em concessoes
-#    (intangivel elevado, PL negativo) os escores devem ser lidos com cautela.
+# 10. Modelos de previsao de insolvencia
+#     Atencao: modelos estimados para industria e comercio. Em concessoes
+#     (intangivel elevado, PL negativo) os escores devem ser lidos com cautela.
 # =============================================================================
 
 #' Fator de insolvencia de Kanitz
@@ -339,7 +605,7 @@ matias <- function(ag) {
 }
 
 # =============================================================================
-# 6. Indicadores do ponto de vista do investidor (Marion, 2013)
+# 11. Indicadores do ponto de vista do investidor (Marion, 2013)
 # =============================================================================
 
 #' Indicadores do investidor

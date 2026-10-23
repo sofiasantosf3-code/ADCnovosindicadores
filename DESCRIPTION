@@ -8,11 +8,13 @@ URL: https://github.com/sofiasantosf3-code/ADCnovosindicadores
 BugReports: https://github.com/sofiasantosf3-code/ADCnovosindicadores/issues
 Description: Pacote R para analise de demonstracoes contabeis de empresas
     listadas na B3. Importa dados CVM/DFP/ITR, classifica contas do balanco
-    patrimonial, DRE, DFC e DVA, e calcula indicadores financeiros: analise
-    vertical e horizontal, modelo Fleuriet (CDG, NCG, ST, tipologia I-VI,
-    efeito tesoura), prazos medios e ciclos, alavancagem (GAO, GAF, GAT),
-    modelos de insolvencia (Kanitz, Altman, Elizabetsky, Matias) e
-    indicadores do investidor (VPA, LPA, P/L, DPA).
+    patrimonial, DRE, DFC e DVA, e calcula indicadores financeiros: liquidez
+    (corrente, seca, imediata, geral), endividamento (EG, CE, IPL, IRNC, PCT),
+    rentabilidade (margens, ROA, ROE, giro do ativo), DuPont, cobertura de
+    juros, analise vertical e horizontal, modelo Fleuriet (CDG, NCG, ST,
+    tipologia I-VI, efeito tesoura), prazos medios e ciclos, alavancagem
+    (GAO, GAF, GAT), modelos de insolvencia (Kanitz, Altman, Elizabetsky,
+    Matias) e indicadores do investidor (VPA, LPA, P/L, DPA).
 License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true

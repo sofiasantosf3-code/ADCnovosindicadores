@@ -31,7 +31,64 @@ ag <- resultado$agregado   # lista: ATIVO_TOTAL, RECEITA_LIQUIDA, ...
 | **DFC**      | FCO, FCI, FCF                                                                          |
 | **DVA**      | Valor Adicionado a Distribuir, Pessoal, Impostos, Remuneracao de Terceiros/Proprio     |
 
-### 2. Analise vertical e horizontal (Aula 06)
+### 2. Indicadores de liquidez
+
+```r
+# Individuais
+liquidez_corrente(ag)   # AC / PC
+liquidez_seca(ag)       # (AC - Estoques) / PC
+liquidez_imediata(ag)   # Caixa / PC
+liquidez_geral(ag)      # (AC + RLP) / (PC + PNC)
+
+# Todos de uma vez
+indicadores_liquidez(ag)
+# $LC, $LS, $LI, $LG
+```
+
+### 3. Estrutura de capital / endividamento
+
+```r
+endividamento_geral(ag)             # ET / AT
+composicao_endividamento(ag)        # PC / ET
+imobilizacao_pl(ag)                 # (Imob + Intang) / PL
+imobilizacao_rnc(ag)                # (Imob + Intang) / (PL + PNC)
+participacao_capital_terceiros(ag)  # ET / PL
+
+indicadores_endividamento(ag)
+# $EG, $CE, $IPL, $IRNC, $PCT
+```
+
+### 4. Rentabilidade
+
+```r
+margem_bruta(ag)        # LB / RL
+margem_operacional(ag)  # LAJIR / RL
+margem_liquida(ag)      # LL / RL
+roa(ag)                 # LL / AT
+roe(ag)                 # LL / PL
+giro_ativo(ag)          # RL / AT
+
+indicadores_rentabilidade(ag)
+# $MB, $MO, $ML, $ROA, $ROE, $GA
+```
+
+### 5. Decomposicao DuPont
+
+```r
+d <- dupont(ag)
+# d$ML            — Margem liquida
+# d$GA            — Giro do ativo
+# d$multiplicador — AT / PL (alavancagem)
+# d$ROE_dupont    — ML x GA x multiplicador (= ROE)
+```
+
+### 6. Cobertura de juros
+
+```r
+cobertura_juros(ag)  # LAJIR / |Despesas financeiras|
+```
+
+### 7. Analise vertical e horizontal (Aula 06)
 
 ```r
 # Analise vertical — participacao de cada conta sobre uma base
@@ -44,7 +101,7 @@ analise_horizontal(
 )
 ```
 
-### 3. Modelo Fleuriet — capital de giro (Aula 07)
+### 8. Modelo Fleuriet — capital de giro (Aula 07)
 
 Reclassifica o balanco em circulante financeiro e operacional e calcula CDG (CCL), NCG (NIG), ST (SD), NTFP e termometro financeiro.
 
@@ -79,7 +136,7 @@ efeito_tesoura(
 )
 ```
 
-### 4. Prazos medios e ciclos (Aula 07)
+### 9. Prazos medios e ciclos (Aula 07)
 
 ```r
 p <- prazos_medios(ag, ag_anterior)
@@ -90,7 +147,7 @@ p <- prazos_medios(ag, ag_anterior)
 # p$ciclo_financeiro    — Ciclo operacional - PMPC
 ```
 
-### 5. Alavancagem (Aula 06)
+### 10. Alavancagem (Aula 06)
 
 ```r
 a <- alavancagem(ag_atual, ag_anterior)
@@ -99,7 +156,7 @@ a <- alavancagem(ag_atual, ag_anterior)
 # a$GAT — Grau de Alavancagem Total (= GAO x GAF)
 ```
 
-### 6. Modelos de previsao de insolvencia (Aula 06)
+### 11. Modelos de previsao de insolvencia (Aula 06)
 
 > **Nota:** Estes modelos foram estimados para industria e comercio. Em empresas de concessao (intangivel elevado, PL negativo), os escores devem ser interpretados com cautela.
 
@@ -119,7 +176,7 @@ elizabetsky(ag)  # Z < 0.5 → insolvente
 matias(ag)    # Z < 0 → insolvente
 ```
 
-### 7. Indicadores do investidor (Marion, 2013)
+### 12. Indicadores do investidor (Marion, 2013)
 
 ```r
 i <- indicadores_investidor(ag, n_acoes = 1000000, preco = 25.50, dividendos = 500000)
@@ -156,11 +213,11 @@ ADCnovosindicadores/
 ├── R/
 │   ├── utils.R               # normalizar_texto, conv_br_numeric, safe_div
 │   ├── importar_contabil.R   # categorias CVM, importar_contabil_dfp/itr
-│   └── indicadores.R         # todos os indicadores financeiros
+│   └── indicadores.R         # todos os indicadores financeiros (classicos + avancados)
 ├── tests/testthat/
 │   ├── test-utils.R          # 4 testes
 │   ├── test-importar-contabil.R  # 8 testes
-│   └── test-indicadores.R    # 11 testes
+│   └── test-indicadores.R    # 31 testes
 ├── DESCRIPTION
 ├── NAMESPACE
 └── LICENSE
@@ -170,7 +227,7 @@ ADCnovosindicadores/
 
 ```r
 devtools::test()
-# 23 testes, todos passando
+# 43 testes, todos passando
 ```
 
 Os testes reproduzem os exemplos numericos das Aulas 06 e 07 do curso de Analise das Demonstracoes Contabeis (UFC).
