@@ -2,7 +2,7 @@ Package: ADCnovosindicadores
 Title: Novos Indicadores para Analise das Demonstracoes Contabeis (B3)
 Version: 0.1.0
 Authors@R:
-    person("Sofia", "Santos", email = "sofiasantosf3@example.com",
+    person("Sofia", "Santos", email = "sofiasantosf2@outlook.com",
            role = c("aut", "cre"))
 URL: https://github.com/sofiasantosf3-code/ADCnovosindicadores
 BugReports: https://github.com/sofiasantosf3-code/ADCnovosindicadores/issues
