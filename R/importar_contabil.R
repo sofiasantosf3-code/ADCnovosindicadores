@@ -180,10 +180,13 @@ classificar_conta <- function(descricoes, categorias) {
   desc_norm <- gsub("intagivel", "intangivel", desc_norm, fixed = TRUE)
   cat_vals <- vapply(categorias, normalizar_texto, character(1))
 
+  ordem <- order(nchar(cat_vals), decreasing = TRUE)
+
   resultado <- rep(NA_character_, length(desc_norm))
 
-  for (cat_nome in names(cat_vals)) {
-    matches <- grepl(cat_vals[cat_nome], desc_norm, fixed = TRUE)
+  for (idx in ordem) {
+    cat_nome <- names(cat_vals)[idx]
+    matches <- grepl(cat_vals[idx], desc_norm, fixed = TRUE)
     resultado[matches & is.na(resultado)] <- cat_nome
   }
 
