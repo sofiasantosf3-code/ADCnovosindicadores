@@ -282,6 +282,10 @@ devtools::test()
 
 Os testes reproduzem os exemplos numericos das Aulas 06 e 07 do curso de Analise das Demonstracoes Contabeis.
 
+## Colaboracao
+
+Este pacote foi desenvolvido por **Sofia Santos Ferreira** como parte de projeto de bolsa de pesquisa na area de Contabilidade Financeira, com colaboracao do **Claude** (Anthropic) na implementacao de codigo, correcao de bugs e testes. Em particular, o modulo de importacao online de dados da CVM (`importar_cvm_online`) foi desenvolvido em conjunto — incluindo a resolucao de problemas de compatibilidade entre arquivos CSV da CVM e a correcao do algoritmo de classificacao de contas contabeis.
+
 ## Fontes
 - **Aulas da cadeira de Análise de demonstrações contábeis**
 - **Amorim, K.** — CCL/NIG/SD, Alavancagem, Indicadores combinados
