@@ -79,6 +79,9 @@ NULL
   sufixo <- if (consolidado) "con" else "ind"
   tipos_arq <- c("BPA", "BPP", "DRE", "DFC_MI", "DVA")
 
+  colunas_base <- c("CNPJ_CIA", "DENOM_CIA", "DT_REFER", "CD_CONTA",
+                     "DS_CONTA", "VL_CONTA", "ORDEM_EXERC", "ESCALA_MOEDA")
+
   partes <- list()
   for (tp in tipos_arq) {
     arq <- sprintf("%s_%s_%s_%d.csv", info_zip$prefixo, tp, sufixo, info_zip$ano)
@@ -86,6 +89,8 @@ NULL
     if (file.exists(caminho)) {
       df <- utils::read.csv2(caminho, stringsAsFactors = FALSE,
                              fileEncoding = "latin1", check.names = FALSE)
+      cols <- intersect(colunas_base, names(df))
+      df <- df[, cols, drop = FALSE]
       df$.fonte <- tp
       partes[[tp]] <- df
     }
