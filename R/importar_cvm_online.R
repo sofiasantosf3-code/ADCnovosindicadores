@@ -135,7 +135,9 @@ NULL
   todas_cats <- c(categorias_bp, categorias_dre, categorias_dfc, categorias_dva)
 
   desc_norm <- normalizar_texto(df$DS_CONTA)
+  desc_norm <- gsub("/", " ou ", desc_norm, fixed = TRUE)
   cat_vals <- vapply(todas_cats, normalizar_texto, character(1))
+  cat_vals <- gsub("/", " ou ", cat_vals, fixed = TRUE)
 
   ordem <- order(nchar(cat_vals), decreasing = TRUE)
 
@@ -157,14 +159,35 @@ NULL
   }
 
   aliases <- c(
-    CONTAS_RECEBER    = "CONTAS_RECEBER_CP",
+    CONTAS_RECEBER         = "CONTAS_RECEBER_CP",
     REALIZAVEL_LONGO_PRAZO = "REALIZAVEL_LP",
-    CUSTO             = "CUSTO_SERVICOS"
+    CUSTO                  = "CUSTO_SERVICOS",
+    LUCRO_BRUTO            = "RESULTADO_BRUTO"
   )
   for (novo in names(aliases)) {
     orig <- aliases[novo]
     if (!is.null(resultado[[orig]]) && is.null(resultado[[novo]])) {
       resultado[[novo]] <- resultado[[orig]]
+    }
+  }
+
+  fallback_cd <- list(
+    CAIXA_EQUIVALENTES     = "1.01.01",
+    ATIVO_TOTAL            = "1",
+    ATIVO_CIRCULANTE       = "1.01",
+    ATIVO_NAO_CIRCULANTE   = "1.02",
+    PASSIVO_CIRCULANTE     = "2.01",
+    PASSIVO_NAO_CIRCULANTE = "2.02",
+    PATRIMONIO_LIQUIDO     = "2.03",
+    LUCRO_LIQUIDO          = "3.11"
+  )
+  for (cat_nome in names(fallback_cd)) {
+    if (is.null(resultado[[cat_nome]]) || is.na(resultado[[cat_nome]])) {
+      cd <- fallback_cd[[cat_nome]]
+      idx <- which(df$CD_CONTA == cd)
+      if (length(idx) > 0) {
+        resultado[[cat_nome]] <- as.numeric(df$VL_CONTA[idx[1]])
+      }
     }
   }
 

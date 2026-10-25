@@ -7,7 +7,7 @@ NULL
 categorias_bp <- list(
   ATIVO_TOTAL              = "ativo total",
   ATIVO_CIRCULANTE         = "ativo circulante",
-  CAIXA_EQUIVALENTES       = "caixa e equivalente",
+  CAIXA_EQUIVALENTES       = "caixa e equivalentes de caixa",
   APLICACOES_FINANCEIRAS   = "aplicacoes financeiras",
   CONTAS_RECEBER_CP        = "contas a receber",
   ESTOQUES                 = "estoques",
@@ -178,7 +178,9 @@ validar_dados_contabeis <- function(dados) {
 classificar_conta <- function(descricoes, categorias) {
   desc_norm <- normalizar_texto(descricoes)
   desc_norm <- gsub("intagivel", "intangivel", desc_norm, fixed = TRUE)
+  desc_norm <- gsub("/", " ou ", desc_norm, fixed = TRUE)
   cat_vals <- vapply(categorias, normalizar_texto, character(1))
+  cat_vals <- gsub("/", " ou ", cat_vals, fixed = TRUE)
 
   ordem <- order(nchar(cat_vals), decreasing = TRUE)
 
