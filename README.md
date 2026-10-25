@@ -88,7 +88,7 @@ d <- dupont(ag)
 cobertura_juros(ag)  # LAJIR / |Despesas financeiras|
 ```
 
-### 7. Analise vertical e horizontal (Aula 06)
+### 7. Analise vertical e horizontal
 
 ```r
 # Analise vertical — participacao de cada conta sobre uma base
@@ -101,7 +101,7 @@ analise_horizontal(
 )
 ```
 
-### 8. Modelo Fleuriet — capital de giro (Aula 07)
+### 8. Modelo Fleuriet — capital de giro
 
 Reclassifica o balanco em circulante financeiro e operacional e calcula CDG (CCL), NCG (NIG), ST (SD), NTFP e termometro financeiro.
 
@@ -136,7 +136,7 @@ efeito_tesoura(
 )
 ```
 
-### 9. Prazos medios e ciclos (Aula 07)
+### 9. Prazos medios e ciclos
 
 ```r
 p <- prazos_medios(ag, ag_anterior)
@@ -147,7 +147,7 @@ p <- prazos_medios(ag, ag_anterior)
 # p$ciclo_financeiro    — Ciclo operacional - PMPC
 ```
 
-### 10. Alavancagem (Aula 06)
+### 10. Alavancagem
 
 ```r
 a <- alavancagem(ag_atual, ag_anterior)
@@ -156,7 +156,7 @@ a <- alavancagem(ag_atual, ag_anterior)
 # a$GAT — Grau de Alavancagem Total (= GAO x GAF)
 ```
 
-### 11. Modelos de previsao de insolvencia (Aula 06)
+### 11. Modelos de previsao de insolvencia
 
 > **Nota:** Estes modelos foram estimados para industria e comercio. Em empresas de concessao (intangivel elevado, PL negativo), os escores devem ser interpretados com cautela.
 
@@ -254,10 +254,10 @@ devtools::test()
 # 51 testes, todos passando
 ```
 
-Os testes reproduzem os exemplos numericos das Aulas 06 e 07 do curso de Analise das Demonstracoes Contabeis (UFC).
+Os testes reproduzem os exemplos numericos das Aulas 06 e 07 do curso de Analise das Demonstracoes Contabeis.
 
 ## Fontes
-
+- **Aulas da cadeira de Análise de demonstrações contábeis**
 - **Amorim, K.** — CCL/NIG/SD, Alavancagem, Indicadores combinados
 - **Marion, J. C. (2013)** — Analise das Demonstracoes Contabeis
 - **Marques, J. A. V. C.; Braga, R. (1995)** — Tipologia Fleuriet (tipos I–VI)
