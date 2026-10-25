@@ -20,8 +20,15 @@ library(ADCnovosindicadores)
 
 # Importar dados de qualquer empresa
 viva <- importar_cvm_online("VIVA3", "1T25")
-indicadores_liquidez(viva$agregado)
-dupont(viva$agregado)
+ag <- viva$agregado
+
+indicadores_liquidez(ag)
+indicadores_endividamento(ag)
+indicadores_rentabilidade(ag)
+dupont(ag)
+cobertura_juros(ag)
+fleuriet(ag)
+kanitz(ag)
 
 # Analise completa com todos os indicadores de uma vez
 resultado <- analise_completa("PETROBRAS", "1T25", n_acoes = 12757851)
