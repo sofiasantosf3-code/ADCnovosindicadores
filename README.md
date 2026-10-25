@@ -11,13 +11,31 @@ remotes::install_github("sofiasantosf3-code/ADCnovosindicadores")
 
 ## Funcionalidades
 
-### 1. Importacao de dados contabeis (CVM/DFP/ITR)
+### 1. Importacao online de dados CVM
 
-Importa CSVs no formato padrao CVM e classifica automaticamente as contas do Balanco Patrimonial, DRE, DFC e DVA.
+Baixa dados diretamente do portal de dados abertos da CVM — basta informar o nome da empresa (ou ticker) e o periodo.
 
 ```r
 library(ADCnovosindicadores)
 
+# Importar dados de qualquer empresa
+viva <- importar_cvm_online("VIVA3", "1T25")
+indicadores_liquidez(viva$agregado)
+dupont(viva$agregado)
+
+# Analise completa com todos os indicadores de uma vez
+resultado <- analise_completa("PETROBRAS", "1T25", n_acoes = 12757851)
+print(resultado)
+
+# Listar empresas disponiveis
+listar_empresas_cvm("1T25", "banco")
+```
+
+### 1b. Importacao de arquivo local (CSV)
+
+Tambem aceita CSVs no formato padrao CVM, classificando automaticamente as contas do Balanco Patrimonial, DRE, DFC e DVA.
+
+```r
 resultado <- importar_contabil_dfp("dados_empresa.csv")
 ag <- resultado$agregado   # lista: ATIVO_TOTAL, RECEITA_LIQUIDA, ...
 ```
@@ -236,7 +254,8 @@ ADCnovosindicadores/
 │   ├── utils.R               # normalizar_texto, conv_br_numeric, safe_div
 │   ├── importar_contabil.R   # categorias CVM, importar_contabil_dfp/itr
 │   ├── indicadores.R         # todos os indicadores financeiros (classicos + avancados)
-│   └── cotacao_b3.R          # cotacoes da B3 via Yahoo Finance
+│   ├── cotacao_b3.R          # cotacoes da B3 via Yahoo Finance
+│   └── importar_cvm_online.R # importacao online da CVM + analise completa
 ├── tests/testthat/
 │   ├── test-utils.R          # 4 testes
 │   ├── test-importar-contabil.R  # 8 testes
