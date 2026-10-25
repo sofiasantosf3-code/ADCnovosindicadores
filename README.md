@@ -258,7 +258,6 @@ Os testes reproduzem os exemplos numericos das Aulas 06 e 07 do curso de Analise
 
 ## Fontes
 
-- **Aulas 06 e 07** — Analise das Demonstracoes Contabeis, UFC
 - **Amorim, K.** — CCL/NIG/SD, Alavancagem, Indicadores combinados
 - **Marion, J. C. (2013)** — Analise das Demonstracoes Contabeis
 - **Marques, J. A. V. C.; Braga, R. (1995)** — Tipologia Fleuriet (tipos I–VI)
