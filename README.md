@@ -6,7 +6,7 @@ Pacote R para **Analise das Demonstracoes Contabeis** de empresas listadas na B3
 
 ```r
 # Via remotes (GitHub)
-remotes::install_github("sofiasantosf3-code/ADCnovosindicadores")
+remotes::install_github("sofiasantosf3-code/ADCnovosindicadores", force = TRUE)
 ```
 
 ## Funcionalidades
