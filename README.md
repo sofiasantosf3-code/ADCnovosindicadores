@@ -164,7 +164,15 @@ efeito_tesoura(
 ### 9. Prazos medios e ciclos
 
 ```r
+# Dados anuais (DFP) — usa 360 dias automaticamente
 p <- prazos_medios(ag, ag_anterior)
+
+# Dados trimestrais (ITR) — usar dias = 90
+p <- prazos_medios(ag, ag_anterior, dias = 90)
+
+# Na analise_completa(), a base de dias e detectada automaticamente:
+# 1T25, 2T24, 3T23 → 90 dias | 2024, 2023 → 360 dias
+
 # p$PMRV  — Prazo Medio de Recebimento de Vendas
 # p$PMRE  — Prazo Medio de Renovacao de Estoques
 # p$PMPC  — Prazo Medio de Pagamento de Compras

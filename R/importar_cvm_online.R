@@ -261,9 +261,15 @@ importar_cvm_online <- function(empresa, periodo = "1T25", consolidado = TRUE) {
   message(tipo_demo, " | ", info$dt_refer, " | Escala: ", escala,
           " | Contas: ", length(ag[!is.na(ag)]))
 
+  trimestral <- info$tipo == "itr"
+  dias_periodo <- if (trimestral) 90 else 360
+
   list(
     empresa       = nome_empresa,
     periodo       = periodo,
+    trimestre     = info$trimestre,
+    trimestral    = trimestral,
+    dias_periodo  = dias_periodo,
     dt_referencia = info$dt_refer,
     escala        = escala,
     agregado      = ag,
@@ -323,16 +329,23 @@ analise_completa <- function(empresa, periodo = "1T25", n_acoes = NA,
   dados <- importar_cvm_online(empresa, periodo, consolidado)
   ag <- dados$agregado
 
+  dias <- dados$dias_periodo
+  tipo_periodo <- if (dados$trimestral) "Trimestral" else "Anual"
+  message("Base de dias para prazos medios: ", dias, " (", tipo_periodo, ")")
+
   resultado <- list(
     empresa   = dados$empresa,
     periodo   = dados$periodo,
     escala    = dados$escala,
+    trimestral     = dados$trimestral,
+    dias_periodo   = dias,
     liquidez       = indicadores_liquidez(ag),
     endividamento  = indicadores_endividamento(ag),
     rentabilidade  = indicadores_rentabilidade(ag),
     dupont         = dupont(ag),
     cobertura_juros = cobertura_juros(ag),
     fleuriet       = fleuriet(ag),
+    prazos_medios  = prazos_medios(ag, dias = dias),
     kanitz         = kanitz(ag),
     altman         = altman(ag),
     analise_vertical = analise_vertical(ag)
@@ -360,7 +373,10 @@ analise_completa <- function(empresa, periodo = "1T25", n_acoes = NA,
 
 #' @export
 print.analise_completa <- function(x, ...) {
-  cat(sprintf("\n=== %s — %s (Escala: %s) ===\n", x$empresa, x$periodo, x$escala))
+  tipo_p <- if (isTRUE(x$trimestral)) "Trimestral" else "Anual"
+  cat(sprintf("\n=== %s — %s (Escala: %s | %s | %d dias) ===\n",
+              x$empresa, x$periodo, x$escala, tipo_p,
+              if (!is.null(x$dias_periodo)) x$dias_periodo else 360))
 
   .print_sec <- function(titulo, lst) {
     cat(sprintf("\n--- %s ---\n", titulo))
@@ -387,6 +403,7 @@ print.analise_completa <- function(x, ...) {
   cat(sprintf("\n--- Cobertura de Juros ---\n  ICJ                       %8.4f\n",
               x$cobertura_juros))
   .print_sec("Fleuriet", x$fleuriet)
+  if (!is.null(x$prazos_medios)) .print_sec("Prazos Medios (dias)", x$prazos_medios)
   .print_sec("Kanitz", x$kanitz)
   .print_sec("Altman", x$altman)
   if (!is.null(x$investidor)) .print_sec("Indicadores do Investidor", x$investidor)
